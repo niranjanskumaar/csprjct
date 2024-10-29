@@ -14,8 +14,9 @@ import pickle
 # DIRECTORIES
 SPREADSHEET_DIR = "./spreadsheets/"
 DATA_DIR = "./data/"
-USER_DATA = DATA_DIR + "/userdata/"
-BOOKING_DATA = DATA_DIR + "/bookingdata/"
+BOOKING_DIR = DATA_DIR + "/bookingdata/"
+USER_DATA = DATA_DIR + "/USER.DAT"
+STAFF_DATA = DATA_DIR + "/STAFF.DAT"
 
 
 # CORE FUNCTIONS
