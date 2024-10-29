@@ -9,9 +9,13 @@ Canteen Management App (A Purushu-Kumar Production)
 
 import os 
 import csv
+import pickle
 
 # DIRECTORIES
 SPREADSHEET_DIR = "./spreadsheets/"
+DATA_DIR = "./data/"
+USER_DATA = DATA_DIR + "/userdata/"
+BOOKING_DATA = DATA_DIR + "/bookingdata/"
 
 
 # CORE FUNCTIONS
