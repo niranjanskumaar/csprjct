@@ -1,6 +1,28 @@
-# Canteen Management App (A Purushu-Kumar Production)
+"""
 
-import mysql.connector as mysql
+Canteen Management App (A Purushu-Kumar Production)
 
-connect = mysql.connect("")
+"""
 
+
+# MODULES
+
+import os 
+import csv
+
+# DIRECTORIES
+SPREADSHEET_DIR = "./spreadsheets/"
+
+
+# CORE FUNCTIONS
+
+def init_databases():
+    pass    
+
+def create_student():
+    pass   
+
+def create_teacher():
+    pass
+
+init_databases()
