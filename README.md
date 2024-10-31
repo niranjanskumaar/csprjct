@@ -28,8 +28,7 @@ A "Student" user has 3 available functions.
 ### Administrator
 
 > [!TIP] 
-> Username: admin
-
-> Password: admin
+> Username: admin  
+Password: admin
 
 
