@@ -11,7 +11,9 @@ manav eee appinte aishwaryam
 
 import os 
 import csv
+import time
 import pickle
+import datetime
 
 # DIRECTORIES
 SPREADSHEET_DIR = "./spreadsheets/"
@@ -105,6 +107,69 @@ def book_student(st_adm: int):
     wf.close()
     return op
 
+def force_student_book(st_adm: int):
+    rf = open(USER_DATA, "rb")
+    
+    students = []
+    try:
+        while True:
+            cur_data = pickle.load(rf)
+            students.append(cur_data)
+    except EOFError:
+        pass
+    
+    rf.close()
+
+    wf = open(USER_DATA, "wb") 
+
+    for s in students:
+        if s['st_adm'] == st_adm:
+            if s['st_booked'] == False:
+                s['st_booked'] = True
+                op = "SUCCESS: Booked Coupon for {} ({})".format(s['st_name'], s['st_adm'])
+
+            else:
+                op = "ERR 104: Coupon is already booked."
+
+        pickle.dump(s, wf)
+
+    wf.close()
+    return op
+
+def generate_entire_csv():
+    rf = open(USER_DATA, "rb")
+
+    date = datetime.datetime.now()
+    datestring = "{}-{}-{}".format(date.day, date.month, date.year)
+    path = f"{SPREADSHEET_DIR}/{datestring}.csv"
+    csvf = open(path, "w", newline="")
+
+    writer = csv.writer(csvf, delimiter=",")
+    header = ("SI No", "Name", "Class")
+    writer.writerow(header)
+    students = []
+
+
+    try:
+        while True:
+            s_data = pickle.load(rf)
+            students.append(s_data)
+    except EOFError:
+        pass
+    
+    i = 1
+    for student in students:
+        st_name = student['st_name']
+        st_class = student['st_class']
+        data = (i, st_name, st_class)
+        writer.writerow(data)
+        i += 1
+
+    csvf.close()
+    rf.close()
+    
+    return path
+
 def increment_balance(st_adm: int, i_amt: int):
     rf = open(USER_DATA, "rb")
     
@@ -192,6 +257,27 @@ def get_booked_list():
         pass
     
     rf.close()
+    return booked
+
+def get_booked_count():
+    rf = open(USER_DATA, "rb")
+    
+    students = []
+    try:
+        while True:
+            cur_data = pickle.load(rf)
+            students.append(cur_data)
+    except EOFError:
+        pass
+    
+    rf.close()
+
+    booked = 0
+
+    for s in students:
+        if s['st_booked'] == True:
+            booked += 1
+
     return booked
 
 def get_student_data(st_adm: int):
@@ -285,6 +371,8 @@ SELECT AN OPTION:
 # prompt 4
 """Logged in as: admin
 
+TOTAL BOOKED COUNT: {}
+
 ============================
 \tFUNCTIONS
 ============================
@@ -292,8 +380,9 @@ SELECT AN OPTION:
     [1]: Initialize new student
     [2]: Get total booking count
     [3]: Generate csv list
-    [4]: Reset bookings
-    [5]: Logout
+    [4]: Force Student Booking
+    [5]: Reset bookings
+    [6]: Logout
 
 SELECT AN OPTION: """,
 
@@ -325,6 +414,7 @@ Added database entry for {} ({})
 ]
 
 def student():
+        time.sleep(2)
 
         print(prompts[1])
         try:
@@ -350,6 +440,7 @@ def student():
 
                     result = book_student(st_adm)
                     print(result)
+                    time.sleep(2)
                     print()
 
                 if x == "2":
@@ -358,15 +449,20 @@ def student():
                         amount = int(input("Enter Amount: "))
                     except ValueError:
                         print("[⚠] Expected amount in integers; Received string. Please try again.")
+                        time.sleep(2)
+
                         continue
                     finally:
                         if amount < 45:
                             print("[⚠] A minimum of ₹45 required. Please try again.")
                             continue
+                    time.sleep(2)
 
                     print()                            
                     result = increment_balance(st_adm, amount)
                     print(result)
+                    time.sleep(2)
+
                     print()                            
                     
                 if x == "3":
@@ -381,8 +477,6 @@ def student():
             
         else:
             print("[⚠] An unknown error has occurred.")    
-            
-
 
 def admin():
     print(prompts[1])
@@ -396,8 +490,9 @@ def admin():
     
     if logged_in == "admin":
         while True:       
-            x = input(prompts[3])
-
+            booked = get_booked_count()
+            x = input(prompts[3].format(booked))
+            time.sleep(0.5)
             if x == "1":
                 # Student Initializaton
                 print(prompts[4])
@@ -416,9 +511,45 @@ def admin():
                 student = initialize_student(adm_no, name, st_class, pwd)
 
                 print(prompts[5].format(student['st_name'], student['st_adm']))
+                time.sleep(2)
+
+            if x == "2":
+                print()
+                print("TOTAL BOOKINGS: {}".format(booked))
+                print()
+                time.sleep(2)
+
+            if x == "3":
+                path = generate_entire_csv()
+                print()
+                print("SUCCESS: Spreadsheet has been created. ({})".format(path))
+                print()
+                time.sleep(2)
+
+            if x == "4":
+                try:
+                    st_adm = int(input("Admission No: "))
+                except ValueError:
+                    print()
+                    print("[⚠] Expected integers for admission no; Received string. Please try again.")
+                    time.sleep(2)
+
+                result = force_student_book(st_adm)
+                print()
+                print(result)
 
             if x == "5":
+                print()
+                result = reset_bookings()
+                print(result)
+                print()
+                time.sleep(2)
+
+            if x == "6":
                 break
+
+            if x == "7":
+                temp_print_db()
             
     elif logged_in == "incpass":
         print("[⚠] Incorrect password, try Again.")
@@ -427,10 +558,6 @@ def admin():
     else:
         print("[⚠] An unknown error has occurred.")
         return
-
-
-
-
 
 def mainloop():
     while True:
