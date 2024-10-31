@@ -209,7 +209,7 @@ def generate_class_csv(te_class: str):
 
     date = datetime.datetime.now()
     datestring = "{}-{}-{}".format(date.day, date.month, date.year)
-    path = f"{te_class}_{SPREADSHEET_DIR}/{datestring}.csv"
+    path = f"{SPREADSHEET_DIR}/{te_class}_{datestring}.csv"
     csvf = open(path, "w", newline="")
 
     writer = csv.writer(csvf, delimiter=",")
@@ -672,7 +672,7 @@ def teacher():
             x = input(prompts[7].format(tea_data['te_name'], te_class, class_bookings))
 
             if x == "1":
-                path = generate_entire_csv()
+                path = generate_class_csv(te_class)
                 print()
                 print("SUCCESS: Spreadsheet has been created. ({})".format(path))
                 print()
