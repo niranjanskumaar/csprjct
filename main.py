@@ -61,8 +61,6 @@ def initialize_student(st_adm: int, st_name: str, st_class: str, st_password: st
     wf.close()
     return st_data
 
-    
-
 def temp_print_db():
     rf = open(USER_DATA, "rb")
 
@@ -92,13 +90,16 @@ def book_student(st_adm: int):
 
     for s in students:
         if s['st_adm'] == st_adm:
-            if s['st_balance'] >= 45:
-                s['st_booked'] = True
-                s['st_balance'] -= 45
-                op = "SUCCESS: Booked Coupon for {} ({})".format(s['st_name'], s['st_adm'])
+            if s['st_booked'] == False:
+                if s['st_balance'] >= 45:
+                    s['st_booked'] = True
+                    s['st_balance'] -= 45
+                    op = "SUCCESS: Booked Coupon for {} ({})".format(s['st_name'], s['st_adm'])
+                else:
+                    op = "ERR 103: Insufficient Balance for {} ({})".format(s['st_name'], s['st_adm'])
             else:
-                op = "ERR 103: Insufficient Balance for {} ({})".format(s['st_name'], s['st_adm'])
-                
+                op = "ERR 104: Coupon is already booked. If this is a mistake, contact Administrator."    
+
         pickle.dump(s, wf)
 
     wf.close()
@@ -193,11 +194,261 @@ def get_booked_list():
     rf.close()
     return booked
 
-# initialize_student(7301, "Shreya K Subash", "XII A1", "vazire")
-# initialize_student(7302, "Niranjan S Kumar", "XII A1", "0712")
-# initialize_student(7303, "Vivek Purushothaman", "XII A1", "adi")
-# initialize_student(7304, "Manav Ashok", "XII A1", "odi")
+def get_student_data(st_adm: int):
+    rf = open(USER_DATA, "rb")
+    
+    students = []
+    try:
+        while True:
+            cur_data = pickle.load(rf)
+            students.append(cur_data)
+    except EOFError:
+        pass
+    
+    rf.close()
+
+    for s in students:
+        if s['st_adm'] == st_adm:
+            return s   
+
+def s_login(st_adm: int, st_password: str):
+    rf = open(USER_DATA, "rb")
+    
+    students = []
+    try:
+        while True:
+            cur_data = pickle.load(rf)
+            students.append(cur_data)
+    except EOFError:
+        pass
+    
+    rf.close()
+
+    for s in students:
+        if s['st_adm'] == st_adm:
+            if s['st_password'] == st_password:
+                return "std"
+            else:
+                return "incpass"
+    
+    return "nostudent"
+
+def admin_login(username, password):
+    if username == "admin":
+        if password == "admin":
+            return "admin"
+        else:
+            return "incpass"
+    else:
+        return "nouser"
+
+prompts = [
+# prompt 1
+"""
+============================================
+\tCanteen Management App v1.0
+============================================
+
+Functions
+
+    [1]: Login as student
+    [2]: Login as staff
+    [3]: Login as administrator
+    [4]: Exit
+
+SELECT AN OPTION: """,
+
+# prompt 2
+"""
+======================================
+\tENTER YOUR CREDENTIALS
+======================================
+\n""",
+
+# prompt 3
+"""Logged in as: {}
+
+    BOOKING STATUS: {}
+    ACCOUNT BALANCE: ₹{}
+
+=================================
+\tFUNCTIONS
+=================================
+\n
+    [1]: Book Coupon
+    [2]: Add funds
+    [3]: Logout
+
+SELECT AN OPTION: 
+""",
+
+# prompt 4
+"""Logged in as: admin
+
+============================
+\tFUNCTIONS
+============================
+\n
+    [1]: Initialize new student
+    [2]: Get total booking count
+    [3]: Generate csv list
+    [4]: Reset bookings
+    [5]: Logout
+
+SELECT AN OPTION: """,
+
+# prompt 5
+"""
+========================================
+\tSTUDENT INITIALIZATION
+========================================
+
+""",
+
+# prompt 6
+"""
+=======================
+\tSUCCESS
+=======================
+
+Added database entry for {} ({})
+""",
+
+# prompt 7
+"""
+========================================
+\tPAYMENT GATEWAY
+========================================
+
+""",
+
+]
+
+def student():
+
+        print(prompts[1])
+        try:
+            st_adm = int(input("Admission No: "))
+            st_password = input("Password: ")
+
+        except ValueError:
+            print()
+            print("[⚠] Expected integers for admission no; Received string. Please try again.")
+            
+
+        logged_in = s_login(st_adm, st_password)
+
+        print()
+
+        if logged_in == "std":
+            while True:
+                std_data = get_student_data(st_adm)
+                x = input(prompts[2].format(std_data['st_name'], std_data['st_booked'], std_data['st_balance']))
+
+                if x == "1":
+                    print()
+
+                    result = book_student(st_adm)
+                    print(result)
+                    print()
+
+                if x == "2":
+                    print(prompts[6])
+                    try:
+                        amount = int(input("Enter Amount: "))
+                    except ValueError:
+                        print("[⚠] Expected amount in integers; Received string. Please try again.")
+                        continue
+                    finally:
+                        if amount < 45:
+                            print("[⚠] A minimum of ₹45 required. Please try again.")
+                            continue
+
+                    print()                            
+                    result = increment_balance(st_adm, amount)
+                    print(result)
+                    print()                            
+                    
+                if x == "3":
+                    break
 
 
-print(increment_balance(7304, 160))
-temp_print_db()
+        elif logged_in == "incpass":
+            print("[⚠] Incorrect password, try Again.")
+        
+        elif logged_in == "nostudent":
+            print("[⚠] Found no student account with admission that number ({}). Contact administrator to add student account.".format(st_adm)) 
+            
+        else:
+            print("[⚠] An unknown error has occurred.")    
+            
+
+
+def admin():
+    print(prompts[1])
+
+    username = input("Username: ")
+    password = input("Password: ")
+
+    logged_in = admin_login(username, password)
+
+    print()
+    
+    if logged_in == "admin":
+        while True:       
+            x = input(prompts[3])
+
+            if x == "1":
+                # Student Initializaton
+                print(prompts[4])
+                try: 
+                    adm_no = int(input("Admission No: "))
+                    name = input("Name: ")
+                    st_class = input("Class: ")
+                    pwd = input("Password: ")
+                
+                except ValueError:
+                    print()
+                    print("[⚠] Expected integers for admission no; Received string. Please try again.")
+                    continue
+
+
+                student = initialize_student(adm_no, name, st_class, pwd)
+
+                print(prompts[5].format(student['st_name'], student['st_adm']))
+
+            if x == "5":
+                break
+            
+    elif logged_in == "incpass":
+        print("[⚠] Incorrect password, try Again.")
+    elif logged_in == "nouser":
+        print("[⚠] Incorrect username, try Again.")
+    else:
+        print("[⚠] An unknown error has occurred.")
+        return
+
+
+
+
+
+def mainloop():
+    while True:
+
+        choice = input(prompts[0])
+
+        if choice == "1":
+            student()
+
+        if choice == "2":
+            print("teacher login function")
+
+        elif choice == "3":
+            admin()
+        elif choice == "4":
+            break
+
+    
+
+
+mainloop()
