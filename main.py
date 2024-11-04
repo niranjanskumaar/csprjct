@@ -2,8 +2,6 @@
 
 Canteen Management App 
 
-manav eee appinte aishwaryam
-
 """
 
 
