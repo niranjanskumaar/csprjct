@@ -689,7 +689,7 @@ def teacher():
         print("[⚠] Incorrect password, try Again.")
     
     elif logged_in == "noteacher":
-        print("[⚠] Found no teacher account with that teacher ID ({}). Contact administrator to add student account.".format(st_adm)) 
+        print("[⚠] Found no teacher account with that teacher ID ({}). Contact administrator to add student account.".format(te_id)) 
         
     else:
         print("[⚠] An unknown error has occurred.")    
