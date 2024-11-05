@@ -23,11 +23,15 @@ STAFF_DATA = DATA_DIR + "/STAFF.DAT"
 # CORE FUNCTIONS
 
 def init_databases():
-    if not os.path.exists("{}/data".format(os.path.relpath)):
-        os.makedirs("{}/{}".format(os.path.relpath, DATA_DIR))
-        os.makedirs("{}/{}".format(os.path.relpath, SPREADSHEET_DIR))
-    
-    print("already exists")
+    cwd = os.getcwd()
+    if not os.path.exists(f"{cwd}/data/") and not os.path.exists(f"{cwd}/spreadsheets/"):
+        os.makedirs(f"{cwd}/{DATA_DIR}")
+        os.makedirs(f"{cwd}/{SPREADSHEET_DIR}")
+
+    if not os.path.exists(f"{cwd}/{DATA_DIR}/USER.DAT") and not os.path.exists(f"{cwd}/{DATA_DIR}/STAFF.DAT"):
+        open(f"{cwd}/{DATA_DIR}USER.DAT", "x").close()
+        open(f"{cwd}/{DATA_DIR}STAFF.DAT", "x").close()
+        
 
 init_databases()
 
