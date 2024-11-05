@@ -2,8 +2,6 @@
 
 Canteen Management App 
 
-manav eee appinte aishwaryam
-
 """
 
 
@@ -16,9 +14,8 @@ import pickle
 import datetime
 
 # DIRECTORIES
-SPREADSHEET_DIR = "./spreadsheets/"
-DATA_DIR = "./data/"
-BOOKING_DIR = DATA_DIR + "/bookingdata/"
+SPREADSHEET_DIR = "/spreadsheets/"
+DATA_DIR = "/data/"
 USER_DATA = DATA_DIR + "/USER.DAT"
 STAFF_DATA = DATA_DIR + "/STAFF.DAT"
 
@@ -26,7 +23,13 @@ STAFF_DATA = DATA_DIR + "/STAFF.DAT"
 # CORE FUNCTIONS
 
 def init_databases():
-    pass    
+    if not os.path.exists("{}/data".format(os.path.relpath)):
+        os.makedirs("{}/{}".format(os.path.relpath, DATA_DIR))
+        os.makedirs("{}/{}".format(os.path.relpath, SPREADSHEET_DIR))
+    
+    print("already exists")
+
+init_databases()
 
 def initialize_student(st_adm: int, st_name: str, st_class: str, st_password: str):
     rf = open(USER_DATA, "rb")
