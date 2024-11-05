@@ -14,23 +14,27 @@ import pickle
 import datetime
 
 # DIRECTORIES
-SPREADSHEET_DIR = "/spreadsheets/"
-DATA_DIR = "/data/"
-USER_DATA = DATA_DIR + "/USER.DAT"
-STAFF_DATA = DATA_DIR + "/STAFF.DAT"
+
+
+cwd = os.getcwd()
+
+DATA_DIR = f"{cwd}/data/"
+SPREADSHEET_DIR = f"{cwd}/spreadsheets/"
+USER_DATA = f"{cwd}/data/USER.DAT"
+STAFF_DATA = f"{cwd}/data/STAFF.DAT"
+
 
 
 # CORE FUNCTIONS
 
 def init_databases():
-    cwd = os.getcwd()
-    if not os.path.exists(f"{cwd}/data/") and not os.path.exists(f"{cwd}/spreadsheets/"):
-        os.makedirs(f"{cwd}/{DATA_DIR}")
-        os.makedirs(f"{cwd}/{SPREADSHEET_DIR}")
+    if not os.path.exists(DATA_DIR) and not os.path.exists(SPREADSHEET_DIR):
+        os.makedirs(DATA_DIR)
+        os.makedirs(SPREADSHEET_DIR)
 
-    if not os.path.exists(f"{cwd}/{DATA_DIR}/USER.DAT") and not os.path.exists(f"{cwd}/{DATA_DIR}/STAFF.DAT"):
-        open(f"{cwd}/{DATA_DIR}USER.DAT", "x").close()
-        open(f"{cwd}/{DATA_DIR}STAFF.DAT", "x").close()
+    if not os.path.exists(USER_DATA) and not os.path.exists(STAFF_DATA):
+        open(USER_DATA, "x").close()
+        open(STAFF_DATA, "x").close()
         
 
 init_databases()
