@@ -13,6 +13,9 @@ import time
 import pickle
 import datetime
 
+from idgen import generate_id
+
+
 # DIRECTORIES
 
 
@@ -20,6 +23,7 @@ cwd = os.getcwd()
 
 DATA_DIR = f"{cwd}/data/"
 SPREADSHEET_DIR = f"{cwd}/spreadsheets/"
+ID_DIR = f"{cwd}/idcards/"
 USER_DATA = f"{cwd}/data/USER.DAT"
 STAFF_DATA = f"{cwd}/data/STAFF.DAT"
 
@@ -28,11 +32,12 @@ STAFF_DATA = f"{cwd}/data/STAFF.DAT"
 # CORE FUNCTIONS
 
 def init_databases():
-    if not os.path.exists(DATA_DIR) and not os.path.exists(SPREADSHEET_DIR):
+    if not os.path.exists(DATA_DIR) or not os.path.exists(SPREADSHEET_DIR) or not os.path.exists(ID_DIR):
         os.makedirs(DATA_DIR)
         os.makedirs(SPREADSHEET_DIR)
+        os.makedirs(ID_DIR)
 
-    if not os.path.exists(USER_DATA) and not os.path.exists(STAFF_DATA):
+    if not os.path.exists(USER_DATA) or not os.path.exists(STAFF_DATA):
         open(USER_DATA, "x").close()
         open(STAFF_DATA, "x").close()
         
@@ -70,6 +75,9 @@ def initialize_student(st_adm: int, st_name: str, st_class: str, st_password: st
 
     for s in students:
         pickle.dump(s, wf)
+
+    img = generate_id(st_data)
+
 
     wf.close()
     return st_data
@@ -166,6 +174,7 @@ def force_student_book(st_adm: int):
     rf.close()
 
     wf = open(USER_DATA, "wb") 
+
 
     for s in students:
         if s['st_adm'] == st_adm:
@@ -538,7 +547,8 @@ TOTAL BOOKED COUNT: {}
     [4]: Generate a spreadsheet
     [5]: Force Student Booking
     [6]: Reset all bookings
-    [7]: Logout
+    [7]: Generate ID Card
+    [8]: Logout
 
 SELECT AN OPTION: """,
 
@@ -735,6 +745,9 @@ def admin():
 
                 time.sleep(0.5) 
                 student = initialize_student(adm_no, name, st_class, pwd)
+                if "ERR" in student:
+                    print("Student already exists! Try again.")
+                    continue
 
                 print(prompts[5].format(student['st_name'], student['st_adm']))
                 time.sleep(2)
@@ -792,9 +805,19 @@ def admin():
                 time.sleep(2)
 
             if x == "7":
-                break
+                try:
+                    st_adm = int(input("Admission No: "))
+                except ValueError:
+                    print()
+                    print("[⚠] Expected integers for admission no; Received string. Please try again.")
+                    time.sleep(2)
+                
+                idcard = generate_id(get_student_data(st_adm))
 
             if x == "8":
+                break
+
+            if x == "9":
                 temp_print_db()
             
     elif logged_in == "incpass":
